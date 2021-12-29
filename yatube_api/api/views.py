@@ -71,5 +71,5 @@ class FollowViewset(viewsets.ModelViewSet):
             )
         try:
             serializer.save(user=self.request.user)
-        except:
+        except serializers.ValidationError:
             raise serializers.ValidationError('Не уникальная подписка!')
