@@ -51,6 +51,12 @@ class FollowSerializer(serializers.ModelSerializer):
         queryset=User.objects.all()
     )
 
+    def create(self, validated_data):
+        instance, created = Follow.objects.get_or_create(**validated_data)
+        if not created:
+            raise serializers.ValidationError('Не уникальная подписка!')
+        return instance
+
     class Meta:
         model = Follow
         fields = ('user', 'following')

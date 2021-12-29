@@ -69,7 +69,4 @@ class FollowViewset(viewsets.ModelViewSet):
             raise serializers.ValidationError(
                 'Нельзя подписываться на самого себя!'
             )
-        try:
-            serializer.save(user=self.request.user)
-        except serializers.ValidationError:
-            raise serializers.ValidationError('Не уникальная подписка!')
+        serializer.save(user=self.request.user)
