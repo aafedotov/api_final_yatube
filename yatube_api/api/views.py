@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import filters
+from rest_framework import serializers
 from rest_framework import viewsets
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, \
@@ -55,7 +56,7 @@ class FollowViewset(viewsets.ModelViewSet):
     serializer_class = FollowSerializer
     permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('author__username',)
+    search_fields = ('following__username',)
 
     def get_queryset(self):
         """Получаем queryset авторов, на кого подписан user."""
@@ -64,4 +65,11 @@ class FollowViewset(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        if self.request.user.username == self.request.data['following']:
+            raise serializers.ValidationError(
+                'Нельзя подписываться на самого себя!'
+            )
+        try:
+            serializer.save(user=self.request.user)
+        except:
+            raise serializers.ValidationError('Не уникальная подписка!')
